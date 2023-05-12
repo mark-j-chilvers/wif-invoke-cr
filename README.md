@@ -4,7 +4,7 @@ Generate token from AWS Lambda fn to invoke a CloudRun service via Workload Iden
 I was unable to invoke a CloudRun service via the Google Cloud client libraries using the documentation
 mentioned [here](https://cloud.google.com/run/docs/authenticating/service-to-service#run-service-to-service-example-python).
 
-I found a Python example (from here) - but it needed a little work.
+I found a Python example (from step 7 [here](https://cloud.google.com/iam/docs/tutorial-cloud-run-workload-id-federation#get_the_jwt_for_the_authenticated_user_from_keycloak) ) - but it needed a little work (not too much).
 
 # Prerequisites
 

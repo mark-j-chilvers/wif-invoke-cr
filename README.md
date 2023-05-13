@@ -85,10 +85,10 @@ public class Handler implements RequestHandler<Map<String,String>, String> {
 	    logger.log("EVENT TYPE: " + event.getClass());
 	    
 	    try (IamCredentialsClient iamCredentialsClient = IamCredentialsClient.create()) {
-	    	   ServiceAccountName name = ServiceAccountName.of("-", "test-from-aws@mjc-edge-to-mesh.iam.gserviceaccount.com");
+	    	   ServiceAccountName name = ServiceAccountName.of("-", "{MY_SERVICE_ACCOUNT_WITH_CR_INVOKER_ROLE}");
 	    	   List<String> delegates = new ArrayList<>();
-	    	   String audience = "https://whereami-f7fvan6eqq-uc.a.run.app";
-	    	   String crUrl = "https://whereami-f7fvan6eqq-uc.a.run.app";
+	    	   String audience = "{audience}";
+	    	   String crUrl = "{SERVICE_URL}";
 	    	   boolean includeEmail = true;
 	    	   GenerateIdTokenResponse response =
 	    	       iamCredentialsClient.generateIdToken(name, delegates, audience, includeEmail);
@@ -118,6 +118,9 @@ public class Handler implements RequestHandler<Map<String,String>, String> {
 }
 
 ```
-Note: I needed to add creds AND a file under resources. File `META-INF/services/io.grpc.LoadBalancerProvider` with value `io.grpc.internal.PickFirstLoadBalancerProvider`
+Note: I needed to add the WIF creds AND a file (see details below) under resources:
 
+File `META-INF/services/io.grpc.LoadBalancerProvider` with value `io.grpc.internal.PickFirstLoadBalancerProvider`
+
+![image](https://github.com/mark-j-chilvers/wif-invoke-cr/assets/45714243/a5da4118-0e7a-4923-8f54-73d9de9d0c7a)
 

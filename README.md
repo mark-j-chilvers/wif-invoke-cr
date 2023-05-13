@@ -1,4 +1,4 @@
-# wif-invoke-cr-py
+# wif-invoke-cr
 Generate token from AWS Lambda fn to invoke a CloudRun service via Workload Identity Federation
 
 I was unable to invoke a CloudRun service via the Google Cloud client libraries using the documentation
@@ -56,3 +56,68 @@ def lambda_handler(event, context):
 ```
 
 ![image](https://github.com/mark-j-chilvers/wif-invoke-cr-py/assets/45714243/0a673014-90e9-40f4-b038-2b64f89f186c)
+
+# Java example!!
+Based on the approach that worked with the Python SDKs, I got the same working with Java:
+
+```
+package wifexample;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.google.cloud.iam.credentials.v1.*;
+import com.google.api.client.http.*;
+import com.google.api.client.http.javanet.NetHttpTransport;
+
+import java.io.IOException;
+import java.util.*;
+
+import java.util.Map;
+
+public class Handler implements RequestHandler<Map<String,String>, String> {
+
+	@Override
+	public String handleRequest(Map<String, String> event, Context context) {
+		LambdaLogger logger = context.getLogger();
+		logger.log("creds:" + System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
+		
+	    logger.log("EVENT TYPE: " + event.getClass());
+	    
+	    try (IamCredentialsClient iamCredentialsClient = IamCredentialsClient.create()) {
+	    	   ServiceAccountName name = ServiceAccountName.of("-", "test-from-aws@mjc-edge-to-mesh.iam.gserviceaccount.com");
+	    	   List<String> delegates = new ArrayList<>();
+	    	   String audience = "https://whereami-f7fvan6eqq-uc.a.run.app";
+	    	   String crUrl = "https://whereami-f7fvan6eqq-uc.a.run.app";
+	    	   boolean includeEmail = true;
+	    	   GenerateIdTokenResponse response =
+	    	       iamCredentialsClient.generateIdToken(name, delegates, audience, includeEmail);
+	    	   String idToken = response.getToken();
+	    	   logger.log("ID token: " + idToken);
+	    	   
+	    	   GenericUrl genericUrl = new GenericUrl(crUrl);
+	    	   
+	    	   HttpTransport netHttpTransport = new NetHttpTransport();
+	    	   HttpRequestFactory requestFactory = netHttpTransport.createRequestFactory();
+	    	   HttpHeaders authHeader = new HttpHeaders().setAuthorization("Bearer " + idToken);
+	    	   HttpRequest request =
+	    	     requestFactory
+	    	       .buildGetRequest(genericUrl)
+	    	       .setHeaders(authHeader);
+	    	   HttpResponse resp = request.execute();
+	    	   return resp.parseAsString();
+	    	   
+	    	 } catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    
+	    return null;
+	}
+
+}
+
+```
+Note: I needed to add creds AND a file under resources. File `META-INF/services/io.grpc.LoadBalancerProvider` with value `io.grpc.internal.PickFirstLoadBalancerProvider`
+
+

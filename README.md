@@ -122,5 +122,37 @@ Note: I needed to add the WIF creds AND a file (see details below) under resourc
 
 File `META-INF/services/io.grpc.LoadBalancerProvider` with value `io.grpc.internal.PickFirstLoadBalancerProvider`
 
+pom.xml
+```
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>doc-examples</groupId>
+  <artifactId>lambda-java-exampl</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>lambda-java-example</name>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.amazonaws</groupId>
+  		<artifactId>aws-lambda-java-core</artifactId>
+  		<version>1.2.2</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.google.cloud</groupId>
+  		<artifactId>google-cloud-iamcredentials</artifactId>
+  		<version>2.16.0</version>
+  	</dependency>
+  </dependencies>
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.apache.maven.plugins</groupId>
+  			<artifactId>maven-shade-plugin</artifactId>
+  			<version>3.4.1</version>
+  		</plugin>
+  	</plugins>
+  </build>
+</project>
+```
+
 ![image](https://github.com/mark-j-chilvers/wif-invoke-cr/assets/45714243/a5da4118-0e7a-4923-8f54-73d9de9d0c7a)
 
